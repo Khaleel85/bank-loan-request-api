@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'user',
+    'phonenumber_field',
+    'investigation',
 ]
 
 MIDDLEWARE = [
