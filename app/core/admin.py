@@ -39,3 +39,6 @@ class UserAdmin(BaseUserAdmin):
     )
 
 admin.site.register(models.User, UserAdmin)
+admin.site.register(models.Investigation)
+admin.site.register(models.Requester)
+admin.site.register(models.Region)

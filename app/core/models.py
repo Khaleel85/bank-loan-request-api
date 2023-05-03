@@ -8,9 +8,11 @@ from django.contrib.auth.models import(
     BaseUserManager,
     PermissionsMixin,
 )
+from django.core.validators import RegexValidator
 
 from phonenumber_field.modelfields import PhoneNumberField
 
+import phonenumbers
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -44,18 +46,32 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
 
 class Requester(models.Model):
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
     name = models.CharField(max_length=255)
-    identification = models.PositiveIntegerField()
+    identification = models.PositiveIntegerField(unique=True)
     age = models.PositiveIntegerField()
     working_status = models.CharField(max_length=20)
     home_address = models.CharField(max_length=255)
     work_address = models.CharField(max_length=255)
-    mob_phone = PhoneNumberField(region='EG')
-    home_phone = PhoneNumberField(null=True, blank=True, region='EG')
+    mob_phone = PhoneNumberField(region='EG', max_length=13, unique=True)
+
+    home_phone_regex = '^\+20[0-9]{8}$'
+    home_phone_validator = RegexValidator(
+        regex=home_phone_regex,
+        message='Home phone number must be in the format +20xxxxxxxx'
+
+    )
+    home_phone = PhoneNumberField(
+        validators=[home_phone_validator],
+        blank=True,
+        null=True,
+        region='EG',
+        )
+
     marital_status = models.CharField(max_length=25)
     family_count = models.PositiveIntegerField()
     kids_count = models.PositiveIntegerField()
@@ -65,6 +81,16 @@ class Requester(models.Model):
 
     def __str__(self):
         return self.name
+    def clean(self):
+        super().clean()
+        try:
+            parsed_phone = phonenumbers.parse(self.home_phone, 'EG')
+            if not phonenumbers.is_valid_number(parsed_phone):
+                raise ValidationError('Invalid phone number')
+            formatted_phone = phonenumbers.format_number(parsed_phone, phonenumbers.PhoneNumberFormat.E164)
+            self.home_phone = formatted_phone
+        except phonenumbers.phonenumberutil.NumberParseException:
+            raise ValidationError('Invalid phone number')
 
 class Image(models.Model):
     image = models.ImageField(upload_to='images/')
@@ -97,11 +123,40 @@ class Investigation(models.Model):
 
 
 class Region(models.Model):
+    PROVINCE_CHOICES = [
+        ('Alexandria', 'Alexandria'),
+        ('Aswan', 'Aswan'),
+        ('Asyut', 'Asyut'),
+        ('Beheira', 'Beheira'),
+        ('Beni Suef', 'Beni Suef'),
+        ('Cairo', 'Cairo'),
+        ('Dakahlia', 'Dakahlia'),
+        ('Damietta', 'Damietta'),
+        ('Faiyum', 'Faiyum'),
+        ('Gharbia', 'Gharbia'),
+        ('Giza', 'Giza'),
+        ('Ismailia', 'Ismailia'),
+        ('Kafr El Sheikh', 'Kafr El Sheikh'),
+        ('Luxor', 'Luxor'),
+        ('Matrouh', 'Matrouh'),
+        ('Minya', 'Minya'),
+        ('Monufia', 'Monufia'),
+        ('New Valley', 'New Valley'),
+        ('North Sinai', 'North Sinai'),
+        ('Port Said', 'Port Said'),
+        ('Qalyubia', 'Qalyubia'),
+        ('Qena', 'Qena'),
+        ('Red Sea', 'Red Sea'),
+        ('Sharqia', 'Sharqia'),
+        ('Sohag', 'Sohag'),
+        ('South Sinai', 'South Sinai'),
+        ('Suez', 'Suez'),
+    ]
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
-    province = models.CharField(max_length=100)
+    province = models.CharField(max_length=100, choices=PROVINCE_CHOICES)
     city = models.CharField(max_length=100)
     region = models.CharField(max_length=100)
     description = models.TextField()

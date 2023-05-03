@@ -1,8 +1,6 @@
 
 from django.contrib.auth import get_user_model, authenticate
 from django.utils.translation import gettext_lazy as _
-from rest_framework.authtoken.models import Token
-
 
 from rest_framework import serializers
 
@@ -40,8 +38,6 @@ class AuthTokenSerializer(serializers.Serializer):
             username=email,
             password=password,
         )
-        user = get_user_model().objects.get(id=2)
-        token = Token.objects.get(user=user)
         if not user:
             msg = _('Unable to authenticate with provided credentials')
             raise serializers.ValidationError(msg, code='authorization')
