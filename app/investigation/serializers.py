@@ -9,18 +9,22 @@ class InvestigationImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'investigation','image']
 
 class InvestigationSerializer(serializers.ModelSerializer):
-    images = InvestigationImageSerializer(many=True, read_only=True,required=False)
+    images = InvestigationImageSerializer(many=True, read_only=True, required=False)
     uploaded_images = serializers.ListField(
         child = serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
         write_only=True, required=False
     )
-
+    requester = serializers.SerializerMethodField()
     class Meta:
         model = Investigation
         fields = ['id', 'inv_status', 'inv_type', 'created_at', 'requester', 'images', 'uploaded_images']
         read_only_fields = ['id']
+
+    def get_requester(self, obj):
+        return str(obj.requester)
+
     def create(self, validated_data):
-        uploaded_images = validated_data.pop('uploaded_images',[])
+        uploaded_images = validated_data.pop('uploaded_images')
         investigation = Investigation.objects.create(**validated_data)
         for image in uploaded_images:
             new_img = Images.objects.create(investigation=investigation, image=image)

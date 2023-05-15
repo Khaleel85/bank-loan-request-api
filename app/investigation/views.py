@@ -6,6 +6,8 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 
@@ -16,7 +18,7 @@ from investigation import serializers
 class InvestigationViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.InvestigationDetailSerializer
     queryset = Investigation.objects.all()
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -44,14 +46,14 @@ class InvestigationViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status>HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
 class RequesterViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RequesterDetailSerializer
     queryset = Requester.objects.all()
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
@@ -84,7 +86,7 @@ class RequesterViewSet(viewsets.ModelViewSet):
 class RegionViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RegionDetailSerializer
     queryset = Region.objects.all()
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):

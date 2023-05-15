@@ -47,6 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255)
     position = models.CharField(max_length=255)
     phone = PhoneNumberField(region='EG')
+    track = models.ForeignKey('Region', on_delete=models.CASCADE, related_name='regions',blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
 
@@ -68,12 +69,7 @@ class Requester(models.Model):
     work_address = models.TextField(max_length=255)
     mob_phone = PhoneNumberField(region='EG', max_length=13, unique=True)
 
-    # home_phone_regex = '^\+20[0-9]{8}$'
-    # home_phone_validator = RegexValidator(
-    #     regex=home_phone_regex,
-    #     message='Home phone number must be in the format +20xxxxxxxx'
-
-    # )
+   
     home_phone = models.PositiveIntegerField(null=True)
     marital_status = models.CharField(max_length=25)
     family_count = models.PositiveIntegerField()
@@ -127,8 +123,7 @@ class Images(models.Model):
         upload_to=investigation_image_file_path,
     )
 
-    def __str__(self):
-        return self.image.name
+
 
 
 class Region(models.Model):
@@ -171,4 +166,4 @@ class Region(models.Model):
     description = models.TextField()
 
     def __str__(self):
-        return f"{self.region}, {self.city}, {self.province}"
+        return region

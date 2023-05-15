@@ -31,6 +31,7 @@ class UserAdmin(BaseUserAdmin):
                 'name',
                 'position',
                 'phone',
+                'region',
                 'is_active',
                 'is_staff',
                 'is_superuser',
