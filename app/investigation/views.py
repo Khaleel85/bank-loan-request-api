@@ -9,7 +9,6 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.parsers import MultiPartParser
 
 from rest_framework.exceptions import NotFound
 from core.models import Investigation, Requester, Region
@@ -22,7 +21,9 @@ class InvestigationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user).order_by('-id')
+        # #we can set filter to make it show for the user who create the object
+        # return self.queryset.filter(user=self.request.user).order_by('-id')
+        return self.queryset.order_by('-id')
 
     def get_serializer_class(self):
 
@@ -55,11 +56,10 @@ class RequesterViewSet(viewsets.ModelViewSet):
     queryset = Requester.objects.all()
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser]
 
 
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user).order_by('-name')
+        return self.queryset.order_by('-name')
 
     def get_serializer_class(self):
 
@@ -67,15 +67,6 @@ class RequesterViewSet(viewsets.ModelViewSet):
             return serializers.RequesterSerializer
 
         return self.serializer_class
-
-    # def get_object(self):
-    #     identification = self.kwargs.get('identification')
-    #     try:
-    #         obj = self.queryset.get(identification=identification, user=self.request.user)
-    #     except Requester.DoesNotExist:
-    #         return Response({'error': 'Requester not found'}, status=status.HTTP_404_NOT_FOUND)
-    #     self.check_object_permissions(self.request, obj)
-    #     return obj
 
 
     def perform_create(self, serializer):
@@ -90,7 +81,9 @@ class RegionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user).order_by('-region')
+        # #we can set filter to make it show for the user who create the object
+        # return self.queryset.filter(user=self.request.user).order_by('-region')
+        return self.queryset.order_by('-region')
 
     def get_serializer_class(self):
 

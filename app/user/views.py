@@ -14,6 +14,8 @@ from rest_framework import status
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -79,10 +81,10 @@ class LoginView(APIView):
         user = User.objects.filter(email=email).first()
 
         if user is None:
-            raise AuthenticationFailed('email or password is invalid')
+            raise AuthenticationFailed('user is invalid')
 
         if not user.check_password(password):
-            raise AuthenticationFailed('email or password is invalid')
+            raise AuthenticationFailed('password is invalid')
 
         refresh = RefreshToken.for_user(user)
 
@@ -95,20 +97,14 @@ class LoginView(APIView):
         }
         return response
 
+
 class UserView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        token = request.COOKIES.get('jwt')
-
-        if not token:
-            raise AuthenticationFailed('Unauthenticated')
-
-        try:
-            payload = jwt.decode(token, 'secret', algorithm=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated')
-
-        user= User.objects.filter(id=payload['id']).first()
-        serializer = UserSerializer(user)
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
 
         return Response(serializer.data)
 
@@ -120,43 +116,4 @@ class LogoutView(APIView):
             'message': 'Success'
         }
         return response
-
-
-
-##after using JWT we dont need it
-# class CreateTokenView(ObtainAuthToken):
-#     serializer_class = AuthTokenSerializer
-#     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
-
-
-# class GetTokenView(ObtainAuthToken):
-#     # authentication_classes = [authentication.TokenAuthentication]
-#     # permission_classes = [permissions.IsAuthenticated]
-#     serializer_class = AuthTokenSerializer
-#     # renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
-
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.serializer_class(data=request.data,
-#                                            context={'request': request})
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.validated_data['user']
-#         token, created = Token.objects.get_or_create(user=user)
-#         return Response({'token': token.key})
-##the new one
-# class GetTokenView(ObtainAuthToken):
-#     serializer_class = AuthTokenSerializer
-
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.serializer_class(data=request.data, context={'request': request})
-#         try:
-#             serializer.is_valid(raise_exception=True)
-#         except serializers.ValidationError as e:
-#             message = {'message': 'Invalid email or password.'}
-#             return Response(message, status=status.HTTP_400_BAD_REQUEST)
-
-#         user = serializer.validated_data['user']
-#         token, created = Token.objects.get_or_create(user=user)
-
-#         return Response({'token': token.key})
-
 

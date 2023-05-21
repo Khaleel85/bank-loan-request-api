@@ -14,16 +14,22 @@ class InvestigationSerializer(serializers.ModelSerializer):
         child = serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
         write_only=True, required=False
     )
+
+    requester_name = serializers.CharField(write_only=True, required=True)
     requester = serializers.SerializerMethodField()
     class Meta:
         model = Investigation
-        fields = ['id', 'inv_status', 'inv_type', 'created_at', 'requester', 'images', 'uploaded_images']
+        fields = ['id', 'inv_status', 'inv_type', 'created_at', 'requester', 'requester_name', 'images', 'uploaded_images']
         read_only_fields = ['id']
 
     def get_requester(self, obj):
-        return str(obj.requester)
+        return obj.requester.name if obj.requester else None
 
     def create(self, validated_data):
+        requester_name = validated_data.pop('requester_name')
+        requester = Requester.objects.get(name=requester_name)
+        validated_data['requester'] = requester
+
         uploaded_images = validated_data.pop('uploaded_images')
         investigation = Investigation.objects.create(**validated_data)
         for image in uploaded_images:

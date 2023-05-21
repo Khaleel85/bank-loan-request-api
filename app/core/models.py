@@ -18,7 +18,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 import phonenumbers
 
 def investigation_image_file_path(instance, filename):
-    ext = os.path.splittext(filename)[1]
+    ext = os.path.splitext(filename)[1]
     filename = f'{uuid.uuid4()}{ext}'
 
     return os.path.join('uploads', 'investigation', filename)
@@ -69,7 +69,7 @@ class Requester(models.Model):
     work_address = models.TextField(max_length=255)
     mob_phone = PhoneNumberField(region='EG', max_length=13, unique=True)
 
-   
+
     home_phone = models.PositiveIntegerField(null=True)
     marital_status = models.CharField(max_length=25)
     family_count = models.PositiveIntegerField()

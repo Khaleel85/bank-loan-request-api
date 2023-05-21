@@ -17,7 +17,7 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('login/', views.LoginView.as_view(), name='login'),
-    path('user/', views.UserView.as_view(), name='user'), #alternative to me url
+    path('users/', views.UserView.as_view(), name='users'), #alternative to me url
     path('logout/', views.LogoutView.as_view(), name='logout'),
 
 
