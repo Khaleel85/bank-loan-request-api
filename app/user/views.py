@@ -33,6 +33,12 @@ class CreateUserView(generics.CreateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes= [IsSuperuser]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(track=request.data.getlist('track', []))
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
     def get_object(self):
         return self.request.user
 

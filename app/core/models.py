@@ -166,4 +166,4 @@ class Region(models.Model):
     description = models.TextField()
 
     def __str__(self):
-        return region
+        return self.region
