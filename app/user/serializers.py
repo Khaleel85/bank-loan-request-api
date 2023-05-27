@@ -17,11 +17,11 @@ class UserSerializer(serializers.ModelSerializer):
   def create(self, validated_data):
     track_names = validated_data.pop('track')
     try:
-      track = Region.objects.get(region=track_names[0].strip())
+      track = Region.objects.get(region=track_names.strip())
     except Region.DoesNotExist:
-      raise serializers.ValidationError({'track': f'Region {track_names.first()} does not exist.'})
+      raise serializers.ValidationError({'track': f'Region {track_names} does not exist.'})
     except Region.MultipleObjectsReturned:
-      raise serializers.ValidationError({'track': f'Multiple regions with the name {track_names.first()} exist.'})
+      raise serializers.ValidationError({'track': f'Multiple regions with the name {track_names} exist.'})
     user = get_user_model().objects.create_user(track=track, **validated_data)
     return user
 

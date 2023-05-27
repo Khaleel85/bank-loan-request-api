@@ -7,18 +7,26 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 
-from rest_framework.exceptions import NotFound
 from core.models import Investigation, Requester, Region
+
 from investigation import serializers
+from auth.custome_permissions import IsManager
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 2
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
 
 class InvestigationViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.InvestigationDetailSerializer
     queryset = Investigation.objects.all()
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+
 
     def get_queryset(self):
         # #we can set filter to make it show for the user who create the object
@@ -56,6 +64,8 @@ class RequesterViewSet(viewsets.ModelViewSet):
     queryset = Requester.objects.all()
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+
 
 
     def get_queryset(self):
@@ -78,7 +88,9 @@ class RegionViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RegionDetailSerializer
     queryset = Region.objects.all()
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsManager]
+    pagination_class = StandardResultsSetPagination
+
 
     def get_queryset(self):
         # #we can set filter to make it show for the user who create the object
