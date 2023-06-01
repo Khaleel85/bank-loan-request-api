@@ -1,6 +1,5 @@
 from rest_framework import permissions
 from rest_framework.permissions import BasePermission
-from rest_framework.decorators import api_view, permission_classes
 
 from django.contrib.auth.models import User, Group, Permission
 
@@ -10,21 +9,23 @@ class IsSuperuser(BasePermission):
         return request.user.is_authenticated and request.user.is_superuser
 
 
-@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
-# @permission_classes(['IsAuthenticated'])
 class IsManager(BasePermission):
+
+    message = 'You do not have permission to perform this action.'
+
     def has_permission(self, request, view):
         position = request.user.position
         is_true = (position == "manager")
         return bool(is_true and request.user.is_authenticated)
 
-@api_view(['GET', 'POST'])
 
 class IsDataEntry(BasePermission):
     def has_permission(self, request, view):
         position = request.user.position
         is_true = (position == "data entry")
-        return bool(is_true and request.user.is_authenticated)
+        if request.method in['GET', 'POST']:
+            return bool(is_true and request.user.is_authenticated)
+        return False
 
 """
 One way to add the permissions from a group model to a user is to use the Group and Permission
